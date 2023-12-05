@@ -2,39 +2,42 @@ package org.example.business;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.example.infrastructure.database.EmployeeRepository;
+import org.example.infrastructure.database.jpaRepositories.EmployeeDataJpaRepository;
 import org.example.infrastructure.database.model.EmployeeEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeDataJpaRepository employeeRepository;
 
     @Transactional
     public void runSuccessful() {
         employeeRepository.deleteAll();
+        employeeRepository.flush();
 
-        EmployeeEntity employee1 = employeeRepository.insertEmployee(EmployeeData.someEmployee1());
-        EmployeeEntity employee2 = employeeRepository.insertEmployee(EmployeeData.someEmployee2());
-        EmployeeEntity employee3 = employeeRepository.insertEmployee(EmployeeData.someEmployee3());
+        EmployeeEntity employee1 = employeeRepository.save(EmployeeData.someEmployee1());
+        EmployeeEntity employee2 = employeeRepository.save(EmployeeData.someEmployee2());
+        EmployeeEntity employee3 = employeeRepository.save(EmployeeData.someEmployee3());
 
-        System.out.println("###Employee 1: " + employeeRepository.getEmployee(employee1.getEmployeeId()));
-        System.out.println("###Employee 2: " + employeeRepository.getEmployee(employee2.getEmployeeId()));
+        System.out.println("###Employee 1: " + employeeRepository.findById(employee1.getEmployeeId()));
+        System.out.println("###Employee 2: " + employeeRepository.findById(employee2.getEmployeeId()));
 
-        employeeRepository.updateEmployee(employee3.getEmployeeId(), new BigDecimal("10348.91"));
-        System.out.println("###Employee updated: "
-            + employeeRepository.getEmployee(employee3.getEmployeeId()));
+        EmployeeEntity employeeEntity = employeeRepository.findById(employee3.getEmployeeId()).orElseThrow();
+        employeeEntity.setSalary(new BigDecimal("23423.23"));
+        employeeRepository.saveAndFlush(employeeEntity);
 
-        employeeRepository.listEmployees()
+
+        employeeRepository.findAll()
             .forEach(employee -> System.out.println("###Employee: " + employee));
 
-        employeeRepository.deleteEmployee(employee2.getEmployeeId());
+        employeeRepository.deleteById(employee2.getEmployeeId());
 
-        employeeRepository.listEmployees()
+        employeeRepository.findAll()
             .forEach(employee -> System.out.println("###Employee: " + employee));
     }
 
@@ -42,9 +45,12 @@ public class EmployeeService {
     public void testTransactional() {
         employeeRepository.deleteAll();
 
-        employeeRepository.insertEmployee(EmployeeData.someEmployee1());
-        employeeRepository.insertEmployee(EmployeeData.someEmployee2());
-        employeeRepository.insertEmployee(EmployeeData.someEmployee3());
-        employeeRepository.insertEmployee(EmployeeData.someEmployee3());
+        employeeRepository.saveAll(List.of(
+                EmployeeData.someEmployee1(),
+                EmployeeData.someEmployee2(),
+                EmployeeData.someEmployee3(),
+                EmployeeData.someEmployee3()
+
+        ));
     }
 }
