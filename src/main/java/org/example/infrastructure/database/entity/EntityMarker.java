@@ -1,4 +1,4 @@
 package org.example.infrastructure.database.entity;
 
-public interface Marker {
+public interface EntityMarker {
 }

@@ -22,7 +22,7 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "customerId")
-@ToString(of = {"customerId", "userName", "email"})
+@ToString(of = {"customerId", "userName", "email", "name"})
 @Entity
 @Builder
 @NoArgsConstructor

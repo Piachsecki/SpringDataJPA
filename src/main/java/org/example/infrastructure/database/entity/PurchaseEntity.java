@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 
 @Getter
@@ -48,7 +49,7 @@ public class PurchaseEntity {
     private Integer quantity;
 
     @Column(name = "date_time")
-    private ZonedDateTime dateTime;
+    private OffsetDateTime dateTime;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "purchaseEntity")
     private OpinionEntity opinionEntity;
