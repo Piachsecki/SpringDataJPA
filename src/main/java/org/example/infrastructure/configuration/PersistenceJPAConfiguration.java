@@ -3,8 +3,12 @@ package org.example.infrastructure.configuration;
 import lombok.AllArgsConstructor;
 import org.example.infrastructure.database.jpaRepositories.JpaRepositoriesMarker;
 import org.example.infrastructure.database.model.EntityMarker;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -29,6 +33,7 @@ public class PersistenceJPAConfiguration {
     private final Environment environment;
 
     @Bean
+    @DependsOn("flyway")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource());
@@ -54,6 +59,7 @@ public class PersistenceJPAConfiguration {
         dataSource.setUrl(environment.getProperty("jdbc.url"));
         dataSource.setUsername(environment.getProperty("jdbc.user"));
         dataSource.setPassword(environment.getProperty("jdbc.pass"));
+//        dataSource.setSchema("employee_flyway");
         return dataSource;
     }
 
@@ -68,4 +74,15 @@ public class PersistenceJPAConfiguration {
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
+
+    @Bean(initMethod = "migrate")
+    public Flyway flyway(){
+        ClassicConfiguration configuration = new ClassicConfiguration();
+        configuration.setBaselineOnMigrate(true);
+        configuration.setLocations(new Location("filesystem:src/main/resources/flyway/migrations"));
+        configuration.setDataSource(dataSource());
+        return new Flyway(configuration);
+    }
+
+
 }

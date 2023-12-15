@@ -15,6 +15,27 @@ public class EmployeeService {
 
     private final EmployeeDataJpaRepository employeeRepository;
 
+
+
+    public EmployeeEntity create(EmployeeEntity employee){
+        return employeeRepository.save(employee);
+    }
+
+    public EmployeeEntity find(final Integer employeeId){
+        return employeeRepository.findById(employeeId).orElseThrow(
+                () -> new RuntimeException("This id doesnt exists")
+        );
+    }
+
+    public EmployeeEntity find(String name, String surname){
+        return employeeRepository.findByNameAndSurname(name, surname).orElseThrow(
+                () -> new RuntimeException("This name and surname doesnt exists")
+        );
+    }
+
+
+
+
     @Transactional
     public void runSuccessful() {
         employeeRepository.deleteAll();
@@ -52,5 +73,10 @@ public class EmployeeService {
                 EmployeeData.someEmployee3()
 
         ));
+    }
+
+    public List<EmployeeEntity> findAll() {
+    return employeeRepository.findAll();
+
     }
 }
